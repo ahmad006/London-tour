@@ -1,5 +1,7 @@
 import { Component,ViewChild,ElementRef } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { Geolocation } from '@ionic-native/geolocation';
+import { Http, Response } from '@angular/http';
 
 /**
  * Generated class for the RoutePage page.
@@ -14,36 +16,40 @@ import { IonicPage, NavController, NavParams } from 'ionic-angular';
   templateUrl: 'route.html',
 })
 export class RoutePage {
-	 items = [
+  routeName = "";
+  apiUrl = 'https://api.tfl.gov.uk/Line/390/Route/Sequence/inbound?serviceTypes=Regular&excludeCrowding=true';
+  items = [
     'London bus route 390',
   ];
   @ViewChild('map') mapElement: ElementRef;
   map: any;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams) {
+  constructor(public http: Http, private geolocation: Geolocation, public navCtrl: NavController, public navParams: NavParams) {
   }
-   ionViewDidLoad() {
+  ionViewDidLoad() {
     this.loadMap();
   }
 
 
   itemSelected(item: string) {
-  
+    let watch = this.geolocation.watchPosition();
+    watch.subscribe((geoData) => {
+      console.log(geoData);
+      this.http.get(this.apiUrl).subscribe((data) => {
+        const stations = JSON.parse(data._body).stations;
+        console.log(stations);
+        for (var i = 0; i < stations.length; i++) {
+          if(stations[i].lat == geoData.coords.latitude && stations[i].lon == geoData.coords.longitude) {
+          //if(stations[i].lat == 51.556822 && stations[i].lon == -0.138433) {
+            this.routeName = stations[i].name;
+            console.log('this is here' + this.routeName);
+          }
+        }
+      })
+    });
   }
-    loadMap(){
+  loadMap(){
 
-
-      // let latLng = new google.maps.LatLng(51.5655, 0.1349);
-
-      // let mapOptions = {
-      //   center: latLng,
-      //   zoom: 10,
-      //   mapTypeId: google.maps.MapTypeId.ROADMAP
-      // }
-
-      // let self = this;
-      // this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions);
-  
   }
 
 }
