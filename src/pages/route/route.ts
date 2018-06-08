@@ -18,7 +18,7 @@ import { Http } from '@angular/http';
 })
 export class RoutePage {
   routeName = "";
-  apiUrl = 'https://api.tfl.gov.uk/Line/390/Route/Sequence/inbound?serviceTypes=Regular&excludeCrowding=true';
+  apiUrl = 'https://api.tfl.gov.uk/Line/390/Route/Sequence/outbound?serviceTypes=Regular&excludeCrowding=false';
   items = [
     'London bus route 390',
   ];
@@ -27,30 +27,26 @@ export class RoutePage {
 
   constructor(public http: Http, private geolocation: Geolocation, public navCtrl: NavController, public navParams: NavParams) {
   }
-  ionViewDidLoad() {
-    this.loadMap();
-  }
 
+  ionViewDidLoad() {
+    // this.loadMap();
+  }
 
   itemSelected(item: string) {
     let watch = this.geolocation.watchPosition();
     watch.subscribe((geoData) => {
       console.log(geoData);
       this.http.get(this.apiUrl).subscribe((data) => {
-        const stations = JSON.parse(data["_body"]).stations;
-        console.log(stations);
-        for (var i = 0; i < stations.length; i++) {
-          if(stations[i].lat == geoData.coords.latitude && stations[i].lon == geoData.coords.longitude) {
-          //if(stations[i].lat == 51.556822 && stations[i].lon == -0.138433) {
-            this.routeName = stations[i].name;
+        const stoppoints = JSON.parse(data["_body"]).stopPointSequences[0].stopPoint;
+        console.log(stoppoints);
+        for(var i = 0; i < stoppoints.length; i++){
+          // if(stoppoints[i].lat == geoData.coords.latitude && stoppoints[i].lon == geoData.coords.longitude) {
+          if(stoppoints[i].lat == 51.564831 && stoppoints[i].lon == -0.134817){
+            this.routeName = stoppoints[i].name;
             console.log('this is here' + this.routeName);
           }
         }
       })
     });
   }
-  loadMap(){
-
-  }
-
 }
