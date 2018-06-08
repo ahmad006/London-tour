@@ -1,7 +1,8 @@
 import { Component,ViewChild,ElementRef } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
 import { Geolocation } from '@ionic-native/geolocation';
-import { Http, Response } from '@angular/http';
+import { Http } from '@angular/http';
+
 
 /**
  * Generated class for the RoutePage page.
@@ -36,7 +37,7 @@ export class RoutePage {
     watch.subscribe((geoData) => {
       console.log(geoData);
       this.http.get(this.apiUrl).subscribe((data) => {
-        const stations = JSON.parse(data._body).stations;
+        const stations = JSON.parse(data["_body"]).stations;
         console.log(stations);
         for (var i = 0; i < stations.length; i++) {
           if(stations[i].lat == geoData.coords.latitude && stations[i].lon == geoData.coords.longitude) {
