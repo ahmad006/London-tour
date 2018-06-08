@@ -39,8 +39,8 @@ export class RoutePage {
         const stations = JSON.parse(data._body).stations;
         console.log(stations);
         for (var i = 0; i < stations.length; i++) {
-          if(stations[i].lat == geoData.coords.latitude && stations[i].lon == geoData.coords.longitude) {
-          //if(stations[i].lat == 51.556822 && stations[i].lon == -0.138433) {
+          //if(stations[i].lat == geoData.coords.latitude && stations[i].lon == geoData.coords.longitude) {
+          if(stations[i].lat == 51.556822 && stations[i].lon == -0.138433) {
             this.routeName = stations[i].name;
             console.log('this is here' + this.routeName);
           }
