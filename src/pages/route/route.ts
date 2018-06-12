@@ -22,9 +22,7 @@ export class RoutePage {
   //apiUrl = 'https://api.tfl.gov.uk/Line/390/Route/Sequence/outbound?serviceTypes=Regular&excludeCrowding=false';
   // For Route 222
   apiUrl = 'https://api.tfl.gov.uk/Line/222/Route/Sequence/outbound?serviceTypes=Regular&excludeCrowding=false';
-  items = [
-    'London bus route 390',
-  ];
+ 
   @ViewChild('map') mapElement: ElementRef;
   map: any;
 
@@ -33,10 +31,9 @@ export class RoutePage {
 
   ionViewDidLoad() {
     // this.loadMap();
-    this.itemSelected();
   }
 
-  itemSelected(){
+
   Deg2Rad(deg: float) {
     return deg * Math.PI / 180;
   }
@@ -55,7 +52,7 @@ export class RoutePage {
     return d < minDist;
   }
 
-  itemSelected(item: string) {
+  itemSelected() {
     let watch = this.geolocation.watchPosition();
     watch.subscribe((geoData) => {
       console.log(geoData);
@@ -70,10 +67,10 @@ export class RoutePage {
           }
           else
           {
-            this.routeName = "sorry no place found"
+            this.routeName = " no stop found "
           }
         }
       })
-    }); 
+    });
   }
 }
