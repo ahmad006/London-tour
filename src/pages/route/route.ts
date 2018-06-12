@@ -30,9 +30,10 @@ export class RoutePage {
 
   ionViewDidLoad() {
     // this.loadMap();
+    this.itemSelected();
   }
 
-  itemSelected(item: string) {
+  itemSelected(){
     let watch = this.geolocation.watchPosition();
     watch.subscribe((geoData) => {
       console.log(geoData);
@@ -40,13 +41,17 @@ export class RoutePage {
         const stoppoints = JSON.parse(data["_body"]).stopPointSequences[0].stopPoint;
         console.log(stoppoints);
         for(var i = 0; i < stoppoints.length; i++){
-          // if(stoppoints[i].lat == geoData.coords.latitude && stoppoints[i].lon == geoData.coords.longitude) {
-          if(stoppoints[i].lat == 51.564831 && stoppoints[i].lon == -0.134817){
+          if(stoppoints[i].lat == geoData.coords.latitude && stoppoints[i].lon == geoData.coords.longitude) {
+          // if(stoppoints[i].lat == 51.564831 && stoppoints[i].lon == -0.134817){
             this.routeName = stoppoints[i].name;
             console.log('this is here' + this.routeName);
           }
+          else
+          {
+            this.routeName = "sorry no place found"
+          }
         }
       })
-    });
+    }); 
   }
 }
