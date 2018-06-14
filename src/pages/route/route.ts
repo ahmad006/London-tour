@@ -17,9 +17,13 @@ import { Http } from '@angular/http';
   templateUrl: 'route.html',
 })
 export class RoutePage {
+  lat: any;
+  lon: any;
+  distance: any;
   routeName = "";
+  routeList = [];
    // For Route 390
-  //apiUrl = 'https://api.tfl.gov.uk/Line/390/Route/Sequence/outbound?serviceTypes=Regular&excludeCrowding=false';
+  // apiUrl = 'https://api.tfl.gov.uk/Line/390/Route/Sequence/outbound?serviceTypes=Regular&excludeCrowding=false';
   // For Route 222
   apiUrl = 'https://api.tfl.gov.uk/Line/222/Route/Sequence/outbound?serviceTypes=Regular&excludeCrowding=false';
  
@@ -34,10 +38,11 @@ export class RoutePage {
   }
 
 
-  Deg2Rad(deg: float) {
+  Deg2Rad(deg: any) {
     return deg * Math.PI / 180;
   }
-  pythagorasEquirectangular(lat1: float, lon1: float, lat2: float, lon2: float) {
+  pythagorasEquirectangular(lat1: any, lon1: any, lat2: any, lon2: any) {
+
     const R = 6371; // Radius of the earth in km
     const dLat = this.Deg2Rad(lat2-lat1);  // deg2rad below
     const dLon = this.Deg2Rad(lon2-lon1);
@@ -48,27 +53,45 @@ export class RoutePage {
     ;
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     const  d = R * c; // Distance in km
-    const minDist = 0.1
-    return d < minDist;
+    return d;
   }
 
   itemSelected() {
     let watch = this.geolocation.watchPosition();
     watch.subscribe((geoData) => {
-      console.log(geoData);
+      this.lat = geoData.coords.latitude;
+      this.lon = geoData.coords.longitude;
       this.http.get(this.apiUrl).subscribe((data) => {
         const stoppoints = JSON.parse(data["_body"]).stopPointSequences[0].stopPoint;
+
         for(var i = 0; i < stoppoints.length; i++){
-          //if(this.pythagorasEquirectangular(51.565490, -0.134817, stoppoints[i].lat, stoppoints[i].lon)) {
-          if(this.pythagorasEquirectangular(geoData.coords.latitude, geoData.coords.longitude, stoppoints[i].lat, stoppoints[i])) {
-            this.routeName = stoppoints[i].name;
-            console.log(this.routeName);
-            console.log(stoppoints[i]);
+          // Static stop testing for 390
+          //const calculatedDistance = this.pythagorasEquirectangular(51.565394, -0.134540, stoppoints[i].lat, stoppoints[i].lon)
+          // Dynamic stops
+          const calculatedDistance = this.pythagorasEquirectangular(geoData.coords.latitude, geoData.coords.longitude, stoppoints[i].lat, stoppoints[i].lon);
+          if( calculatedDistance < 1 ) {
+            // store all stops that are in less then 1 km
+            this.routeList.push({stopPoint: stoppoints[i], distance: calculatedDistance});
           }
-          else
-          {
-            this.routeName = " no stop found "
-          }
+        }
+        // check if there is any stop less then 1 km
+        if (this.routeList.length) {
+          // find the nearest Stop
+          // sort the stops that are nearest
+          const nearestStop = this.routeList.sort((a: any, b: any) => {
+            if (a.distance < b.distance) {
+              return -1;
+            } else if (a.distance > b.distance) {
+              return 1
+            } else {
+              return 0;
+            }
+          })
+          const { stopPoint, distance } = nearestStop[0];
+          this.routeName = stopPoint.name;
+          this.distance = distance.toFixed(2);
+        } else {
+          this.routeName = 'No stop found';
         }
       })
     });
